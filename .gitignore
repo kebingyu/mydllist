@@ -1,0 +1,4 @@
+tests/*
+.libs/*
+mydllist.php
+mydllist.lo
