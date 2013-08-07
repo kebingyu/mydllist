@@ -12,7 +12,7 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Author:                                                              |
+  | Author: kyu                                                          |
   +----------------------------------------------------------------------+
 */
 
@@ -69,15 +69,9 @@ PHP_METHOD(MyDLList, push) {/*{{{*/
 	list->count++;
 }/*}}}*/
 
-PHP_METHOD(MyDLList, myCount) {/*{{{*/
-	dll_object *obj = (dll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
-	dll_list *list = obj->llist;
-	RETVAL_LONG(list->count);
-}/*}}}*/
-
 PHP_METHOD(MyDLList, pop) {/*{{{*/
 	dll_object *obj = (dll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
-	dll_list *list = obj->llist;
+	dll_list *list = (dll_list *)obj->llist;
 	dll_node *tail = list->tail;
 	if (tail) {
 		if (tail->prev) {
@@ -95,6 +89,155 @@ PHP_METHOD(MyDLList, pop) {/*{{{*/
 	}
 }/*}}}*/
 
+PHP_METHOD(MyDLList, shift) {/*{{{*/
+	dll_object *obj = (dll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	dll_list *list = obj->llist;
+	dll_node *head = list->head;
+	if (head) {
+		if (head->next) {
+			head->next->prev = NULL;
+		} else {
+			list->tail = NULL;
+		}
+		list->head = head->next;
+		list->count--;
+		int ret = head->data;
+		dll_node_dtor(head);
+		RETVAL_LONG(ret);
+	} else {
+		RETVAL_FALSE;
+	}
+}
+/*}}}*/
+
+PHP_METHOD(MyDLList, unshift) {/*{{{*/
+	long data;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &data) == FAILURE) {
+		RETURN_NULL();
+	}
+	dll_object *obj = (dll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	dll_list *list = obj->llist;
+	dll_node *node = dll_node_ctor(data);
+	node->prev = NULL;
+	node->next = list->head;
+	node->data = data;
+	if (list->head) {
+		list->head->prev = node;
+		node->next = list->head;
+	} else {
+		list->tail = node;
+	}
+	list->head = node;
+	list->count++;
+}
+/*}}}*/
+
+PHP_METHOD(MyDLList, top) {/*{{{*/
+	dll_object *obj = (dll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	dll_list *list = obj->llist;
+	if (list->tail) {
+		RETVAL_LONG(list->tail->data);
+	} else {
+		RETVAL_FALSE;
+	}
+}
+/*}}}*/
+
+PHP_METHOD(MyDLList, bottom) {/*{{{*/
+	dll_object *obj = (dll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	dll_list *list = obj->llist;
+	if (list->head) {
+		RETVAL_LONG(list->head->data);
+	} else {
+		RETVAL_FALSE;
+	}
+}
+/*}}}*/
+
+PHP_METHOD(MyDLList, isEmpty) {/*{{{*/
+	dll_object *obj = (dll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	dll_list *list = obj->llist;
+	if (0 == list->count) {
+		RETVAL_TRUE;
+	} else {
+		RETVAL_FALSE;
+	}
+}
+/*}}}*/
+
+PHP_METHOD(MyDLList, myCount) {/*{{{*/
+	dll_object *obj = (dll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	dll_list *list = obj->llist;
+	RETVAL_LONG(list->count);
+}/*}}}*/
+
+PHP_METHOD(MyDLList, print) {/*{{{*/
+	dll_object *obj = (dll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	dll_list *list = obj->llist;
+	dll_node *head = list->head;
+	while (head) {
+		dll_node_print(head);
+		head = head->next;
+	}
+	php_printf("\n");
+}/*}}}*/
+
+PHP_METHOD(MyDLList, isContain) {/*{{{*/
+	long data, found;
+	found = 0;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &data) == FAILURE) {
+		RETURN_NULL();
+	}
+	dll_object *obj = (dll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	dll_list *list = obj->llist;
+	dll_node *curr = list->head;
+	while (curr) {
+		if (curr->data == data) {
+			found = 1;
+			break;
+		}
+		curr = curr->next;
+	}
+	if (1 == found) {
+		RETVAL_TRUE;
+	} else {
+		RETVAL_FALSE;
+	}
+}
+/*}}}*/
+
+/*
+PHP_METHOD(MyDLList, delete) {
+	long data;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &data) == FAILURE) {
+		RETURN_NULL();
+	}
+	dll_object *obj = (dll_object *)zend_object_store_get_object(getThis() TSRMLS_CC);
+	dll_list *list = obj->llist;
+	dll_node *curr = list->head;
+	while (curr) {
+		if (curr->data == data) {
+			if (curr == list->head) {
+				return dll_list_shift(list);
+			} else if (curr == list->tail) {
+				return dll_list_pop(list);
+			} else {
+				curr->prev->next = curr->next;
+				curr->next->prev = curr->prev;
+				ret = curr->data;
+				dll_node_dtor(curr);
+				return ret;
+			}
+		}
+		curr = curr->next;
+	}
+	return NULL;
+}
+*/
+
 /* {{{ mydllist_functions[]
  *
  * Every user visible function must have an entry in mydllist_functions[].
@@ -103,8 +246,15 @@ const zend_function_entry mydllist_functions[] = {
 	PHP_ME(MyDLList, __construct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
 	PHP_ME(MyDLList, __destruct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)
 	PHP_ME(MyDLList, push, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(MyDLList, myCount, NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(MyDLList, pop, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(MyDLList, shift, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(MyDLList, unshift, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(MyDLList, top, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(MyDLList, bottom, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(MyDLList, myCount, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(MyDLList, isEmpty, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(MyDLList, isContain, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(MyDLList, print, NULL, ZEND_ACC_PUBLIC)
 	PHP_FE(confirm_mydllist_compiled,	NULL)		/* For testing, remove later. */
 	PHP_FE_END	/* Must be the last line in mydllist_functions[] */
 };
@@ -155,7 +305,7 @@ static void php_mydllist_init_globals(zend_mydllist_globals *mydllist_globals)
 */
 /* }}} */
 
-/* dll dtor/*{{{*/
+/* dllist object dtor{{{*/
 void dll_list_obj_dtor(void *object TSRMLS_DC) {
 	dll_object *obj = (dll_object *)object;
 	dll_list_dtor(obj->llist);
@@ -163,9 +313,10 @@ void dll_list_obj_dtor(void *object TSRMLS_DC) {
 	zend_hash_destroy(obj->std.properties);
 	FREE_HASHTABLE(obj->std.properties);
 	efree(obj);
-}/*}}}*/
+}
+/*}}}*/
 
-/* {{{ dll ctor
+/* {{{ dllist object ctor
  */
 zend_object_value dll_list_obj_ctor(zend_class_entry *ce TSRMLS_DC) {
 	zval *tmp;
@@ -199,6 +350,10 @@ void dll_node_dtor(dll_node *node) {/*{{{*/
 	efree(node);
 }/*}}}*/
 
+void dll_node_print(dll_node *node) {/*{{{*/
+	php_printf("%i ", node->data);
+}/*}}}*/
+
 dll_list *dll_list_ctor() {/*{{{*/
 	dll_list *list = (dll_list *)emalloc(sizeof(dll_list));
 	list->head = NULL;
@@ -216,6 +371,7 @@ void dll_list_dtor(dll_list *list) {/*{{{*/
 	}
 	efree(list);
 }/*}}}*/
+
 
 /* {{{ PHP_MINIT_FUNCTION
  */

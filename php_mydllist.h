@@ -62,14 +62,15 @@ typedef struct _dll_object {
 
 dll_node *dll_node_ctor(int);
 void dll_node_dtor(dll_node *);
+void dll_node_print(dll_node *);
 
 dll_list *dll_list_ctor();
 void dll_list_dtor(dll_list *);
 
 /*
-void dll_list_push(dll_list *, char *);
-char *dll_list_pop(dll_list *);
-char *dll_list_shift(dll_list *);
+static void *dll_list_pop(dll_list * TSRMLS_DC);
+static void *dll_list_shift(dll_list *);
+static void dll_list_push(dll_list *, int);
 void dll_list_unshift(dll_list *, char *);
 char *dll_list_top(dll_list *);
 char *dll_list_bottom(dll_list *);
@@ -78,7 +79,6 @@ int dll_list_count(dll_list *);
 dll_node *dll_list_search(dll_list *, char *);
 char *dll_list_delete(dll_list *, char *);
 */
-
 
 PHP_MINIT_FUNCTION(mydllist);
 PHP_MSHUTDOWN_FUNCTION(mydllist);

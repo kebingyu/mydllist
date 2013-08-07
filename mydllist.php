@@ -27,13 +27,17 @@ var_dump($extension->getClassNames());
 
 $list = new MyDLList();
 $list->push(12);
-$list->push(13);
-$s = $list->pop();
+$list->unshift(13);
+echo $list->top() . "\n";
+echo $list->bottom() . "\n";
+var_dump($list->isContain(12));
+$list->print();
+$s = $list->shift();
 var_dump($s);
-/*
-echo $list->myCount() . "\n";
-echo $list->myCount() . "\n";
- */
+$list->print();
 $n = $list->myCount();
 var_dump($n);
+$list->pop();
+var_dump($list->isContain(12));
+$list->pop();
 unset($list);
