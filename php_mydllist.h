@@ -40,13 +40,18 @@ extern zend_module_entry mydllist_module_entry;
 typedef struct _dll_node {
 	struct _dll_node *prev;
 	struct _dll_node *next;
-	int data;
+	void *data;
 } dll_node;
+
+/*
+typedef void (*dll_node_ctor_func)(dll_node * TSRMLS_DC);
+typedef void (*dll_node_dtor_func)(dll_node * TSRMLS_DC);
+*/
 
 /* list */
 typedef struct _dll_list {
-	struct _dll_node *head;
-	struct _dll_node *tail;
+	dll_node *head;
+	dll_node *tail;
 	int count;
 } dll_list;
 
@@ -60,14 +65,15 @@ typedef struct _dll_object {
 	*/
 } dll_object;
 
-dll_node *dll_node_ctor(int);
+
+/*
+dll_node *dll_node_ctor(void *);
 void dll_node_dtor(dll_node *);
 void dll_node_print(dll_node *);
 
 dll_list *dll_list_ctor();
 void dll_list_dtor(dll_list *);
 
-/*
 static void *dll_list_pop(dll_list * TSRMLS_DC);
 static void *dll_list_shift(dll_list *);
 static void dll_list_push(dll_list *, int);
