@@ -69,7 +69,7 @@ static void dll_list_dtor(dll_list *list TSRMLS_DC) {/*{{{*/
 	efree(list);
 }/*}}}*/
 
-static void dll_list_push(dll_list *list, void *data TSRMLS_DC) {
+static void dll_list_push(dll_list *list, void *data TSRMLS_DC) {/*{{{*/
 	dll_node *node = emalloc(sizeof(dll_node));
 	node->next = NULL;
 	node->prev = list->tail;
@@ -84,9 +84,9 @@ static void dll_list_push(dll_list *list, void *data TSRMLS_DC) {
 	list->count++;
 
 	dll_node_ctor(node TSRMLS_CC);
-}
+}/*}}}*/
 
-static void *dll_list_pop(dll_list *list TSRMLS_DC) {
+static void *dll_list_pop(dll_list *list TSRMLS_DC) {/*{{{*/
 	void *data;
 	dll_node *tail = list->tail;
 	if (tail) {
@@ -105,9 +105,9 @@ static void *dll_list_pop(dll_list *list TSRMLS_DC) {
 	} else {
 		return NULL;
 	}
-}
+}/*}}}*/
 
-static void *dll_list_shift(dll_list *list TSRMLS_DC) {
+static void *dll_list_shift(dll_list *list TSRMLS_DC) {/*{{{*/
 	void *data;
 	dll_node *head = list->head;
 	if (head) {
@@ -126,9 +126,9 @@ static void *dll_list_shift(dll_list *list TSRMLS_DC) {
 	} else {
 		return NULL;
 	}
-}
+}/*}}}*/
 
-static void dll_list_unshift(dll_list *list, void *data TSRMLS_DC) {
+static void dll_list_unshift(dll_list *list, void *data TSRMLS_DC) {/*{{{*/
 	dll_node *node = emalloc(sizeof(dll_node));
 	node->prev = NULL;
 	node->next = list->head;
@@ -142,7 +142,7 @@ static void dll_list_unshift(dll_list *list, void *data TSRMLS_DC) {
 	list->head = node;
 	list->count++;
 	dll_node_ctor(node TSRMLS_CC);
-}
+}/*}}}*/
 
 /*
 static void *dll_list_search(dll_list *list, void *data TSRMLS_DC) {
@@ -160,7 +160,6 @@ static void *dll_list_search(dll_list *list, void *data TSRMLS_DC) {
 }
 */
 
-/* dllist object dtor */
 void dll_list_obj_dtor(void *object TSRMLS_DC) {/*{{{*/
 	dll_object *obj = (dll_object *)object;
 	zval *tmp;
@@ -177,7 +176,6 @@ void dll_list_obj_dtor(void *object TSRMLS_DC) {/*{{{*/
 	efree(obj);
 }/*}}}*/
 
-/*  dllist object ctor */
 zend_object_value dll_list_obj_ctor(zend_class_entry *ce TSRMLS_DC) {/*{{{*/
 	zval *tmp;
 	zend_object_value retval;
@@ -362,7 +360,6 @@ const zend_function_entry mydllist_functions[] = {
 	/*
 	PHP_ME(MyDLList, isContain, NULL, ZEND_ACC_PUBLIC)
 	*/
-	PHP_FE(confirm_mydllist_compiled,	NULL)		/* For testing, remove later. */
 	PHP_FE_END	/* Must be the last line in mydllist_functions[] */
 };
 /*  */

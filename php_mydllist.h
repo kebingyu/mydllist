@@ -12,7 +12,7 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Author:                                                              |
+  | Author: kyu                                                              |
   +----------------------------------------------------------------------+
 */
 
@@ -43,11 +43,6 @@ typedef struct _dll_node {
 	void *data;
 } dll_node;
 
-/*
-typedef void (*dll_node_ctor_func)(dll_node * TSRMLS_DC);
-typedef void (*dll_node_dtor_func)(dll_node * TSRMLS_DC);
-*/
-
 /* list */
 typedef struct _dll_list {
 	dll_node *head;
@@ -65,34 +60,11 @@ typedef struct _dll_object {
 	*/
 } dll_object;
 
-
-/*
-dll_node *dll_node_ctor(void *);
-void dll_node_dtor(dll_node *);
-void dll_node_print(dll_node *);
-
-dll_list *dll_list_ctor();
-void dll_list_dtor(dll_list *);
-
-static void *dll_list_pop(dll_list * TSRMLS_DC);
-static void *dll_list_shift(dll_list *);
-static void dll_list_push(dll_list *, int);
-void dll_list_unshift(dll_list *, char *);
-char *dll_list_top(dll_list *);
-char *dll_list_bottom(dll_list *);
-int dll_list_isEmpty(dll_list *);
-int dll_list_count(dll_list *);
-dll_node *dll_list_search(dll_list *, char *);
-char *dll_list_delete(dll_list *, char *);
-*/
-
 PHP_MINIT_FUNCTION(mydllist);
 PHP_MSHUTDOWN_FUNCTION(mydllist);
 PHP_RINIT_FUNCTION(mydllist);
 PHP_RSHUTDOWN_FUNCTION(mydllist);
 PHP_MINFO_FUNCTION(mydllist);
-
-PHP_FUNCTION(confirm_mydllist_compiled);	/* For testing, remove later. */
 
 /* 
   	Declare any global variables you may need between the BEGIN
